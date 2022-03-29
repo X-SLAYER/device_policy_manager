@@ -19,7 +19,7 @@ public class DevicePolicyManagerPlugin implements FlutterPlugin, MethodCallHandl
 
     private MethodChannel channel;
     private static Context appContext;
-    private static final String CHANNEL_TAG = "x.slayer/device_policy_manager";
+    private static final String CHANNEL_TAG = "x-slayer/device_policy_manager";
     static final int RESULT_ENABLE = -11;
     DevicePolicyManager deviceManger;
     ComponentName compName;
@@ -36,10 +36,10 @@ public class DevicePolicyManagerPlugin implements FlutterPlugin, MethodCallHandl
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         compName = new ComponentName(appContext, DeviceAdmin.class);
         deviceManger = (DevicePolicyManager) appContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        if (call.method.equals("enable")) {
+        if (call.method.equals("enablePermession")) {
             String message = call.argument("package_name").toString();
             enableAccess(message);
-        } else if (call.method.equals("disable")) {
+        } else if (call.method.equals("removeActiveAdmin")) {
             deviceManger.removeActiveAdmin(compName);
         } else if (call.method.equals("lockScreen")) {
             boolean active = deviceManger.isAdminActive(compName);
@@ -47,7 +47,7 @@ public class DevicePolicyManagerPlugin implements FlutterPlugin, MethodCallHandl
                 deviceManger.lockNow();
                 result.success(true);
             } else {
-                result.error("-1", "You need to enable the Admin Device Features", null);
+                result.error("ERROR", "You need to enable the Admin Device Features", null);
             }
         }
     }

@@ -1,6 +1,5 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:device_policy_manager/device_policy_manager.dart';
 
 void main() {
   const MethodChannel channel = MethodChannel('device_policy_manager');
@@ -18,6 +17,6 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    expect(await DevicePolicyManager.platformVersion, '42');
+    expect(null, '42');
   });
 }
