@@ -7,9 +7,19 @@ class DevicePolicyManager {
   static const MethodChannel _channel =
       MethodChannel('x-slayer/device_policy_manager');
 
-  static Future<void> requestPermession() async {
+  static Future<bool> isPermissionGranted() async {
     try {
-      await _channel.invokeMethod('enablePermession');
+      return await _channel.invokeMethod<bool>('isPermissionGranted') ?? false;
+    } on PlatformException catch (error) {
+      log("$error");
+      return Future.value(false);
+    }
+  }
+
+  static Future<void> requestPermession(
+      [String message = "You need to enable this"]) async {
+    try {
+      await _channel.invokeMethod('enablePermission', {"message": message});
     } on PlatformException catch (error) {
       log("$error");
     }

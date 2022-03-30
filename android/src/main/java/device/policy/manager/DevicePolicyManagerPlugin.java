@@ -1,46 +1,58 @@
 package device.policy.manager;
 
+import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import io.flutter.Log;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
-
-public class DevicePolicyManagerPlugin implements FlutterPlugin, MethodCallHandler {
+public class DevicePolicyManagerPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler {
 
     private MethodChannel channel;
-    private static Context appContext;
-    private static final String CHANNEL_TAG = "x-slayer/device_policy_manager";
-    static final int RESULT_ENABLE = -11;
+    private Context appContext;
+    private Activity mActivity;
+    private final String CHANNEL_TAG = "x-slayer/device_policy_manager";
+    final int RESULT_ENABLE = -11;
     DevicePolicyManager deviceManger;
     ComponentName compName;
 
-
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-        channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "device_policy_manager");
+        appContext = flutterPluginBinding.getApplicationContext();
+        channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), CHANNEL_TAG);
         channel.setMethodCallHandler(this);
-        context = flutterPluginBinding.getApplicationContext();
     }
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         compName = new ComponentName(appContext, DeviceAdmin.class);
         deviceManger = (DevicePolicyManager) appContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        if (call.method.equals("enablePermession")) {
-            String message = call.argument("package_name").toString();
-            enableAccess(message);
+        if (call.method.equals("enablePermission")) {
+            try {
+                String message = call.argument("message").toString();
+                Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName);
+                intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, message);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                appContext.startActivity(intent);
+            } catch (Exception e) {
+                Log.d("TAG", e.getMessage());
+            }
         } else if (call.method.equals("removeActiveAdmin")) {
             deviceManger.removeActiveAdmin(compName);
+        } else if (call.method.equals("isPermissionGranted")) {
+            result.success(deviceManger.isAdminActive(compName));
         } else if (call.method.equals("lockScreen")) {
             boolean active = deviceManger.isAdminActive(compName);
             if (active) {
@@ -52,30 +64,28 @@ public class DevicePolicyManagerPlugin implements FlutterPlugin, MethodCallHandl
         }
     }
 
+
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
         channel.setMethodCallHandler(null);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case RESULT_ENABLE:
-                if (resultCode == RESULT_ENABLE) {
-                    Log.d("PERMISSION", "You have enabled the Admin Device features");
-                } else {
-                    Log.d("PERMISSION", "Problem to enable the Admin Device features");
-                }
-                break;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
+    public void onAttachedToActivity(@NonNull ActivityPluginBinding activityPluginBinding) {
+        this.mActivity = activityPluginBinding.getActivity();
+        Log.i("TAG", "Attached to Activity");
     }
 
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+    }
 
-    private void enableAccess(String message) {
-        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName);
-        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, message);
-        startActivityForResult(intent, RESULT_ENABLE);
+    @Override
+    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding activityPluginBinding) {
+        onAttachedToActivity(activityPluginBinding);
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
     }
 }
