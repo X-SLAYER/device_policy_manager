@@ -34,7 +34,7 @@ Inside AndroidManifest add this to bind deviceAdmin receiver with your applicati
 
 ```
 
-Create `policies.xml ` inside `res/xml` and add the following code inside it:
+Create `policies.xml` inside `res/xml` and add the following code inside it:
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
