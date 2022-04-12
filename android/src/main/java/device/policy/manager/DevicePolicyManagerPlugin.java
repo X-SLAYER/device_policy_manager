@@ -5,12 +5,9 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
-import io.flutter.Log;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -99,7 +96,6 @@ public class DevicePolicyManagerPlugin
 
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("A9WA", resultCode + " : RequestCode : " + requestCode);
         if (requestCode == REQUEST_CODE_FOR_DEVICE_POLICY_MANAGER) {
             if (resultCode == Activity.RESULT_OK) {
                 pendingResult.success(true);
