@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="device.policy.manager_example">
     <application android:label="device_policy_manager_example" android:name="${applicationName}" android:icon="@mipmap/ic_launcher">
 
-        <receiver android:name=".DeviceAdmin" android:permission="android.permission.BIND_DEVICE_ADMIN">
+        <receiver android:name="device.policy.manager.DeviceAdmin" android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data android:name="android.app.device_admin" android:resource="@xml/policies" />
-            <intent-filter>
+            <intent-filter android:exported="true">
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
                 <action android:name="android.app.action.ACTION_DEVICE_ADMIN_DISABLE_REQUESTED" />
                 <action android:name="android.app.action.ACTION_DEVICE_ADMIN_DISABLED" />

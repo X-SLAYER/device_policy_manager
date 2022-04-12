@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:device_policy_manager/device_policy_manager.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     const MaterialApp(
       home: MyApp(),
@@ -32,14 +33,15 @@ class _MyAppState extends State<MyApp> {
               children: [
                 TextButton(
                   onPressed: () async {
-                    await DevicePolicyManager.requestPermession();
+                    await DevicePolicyManager.requestPermession(
+                        "Your app is requesting the Adminstration permission");
                   },
                   child: const Text("Enable administrative"),
                 ),
                 const SizedBox(height: 20.0),
                 TextButton(
                   onPressed: () async {
-                    await DevicePolicyManager.requestPermession();
+                    await DevicePolicyManager.removeActiveAdmin();
                   },
                   child: const Text("Disable administrative"),
                 ),
@@ -54,7 +56,7 @@ class _MyAppState extends State<MyApp> {
                 const SizedBox(height: 20.0),
                 TextButton.icon(
                   onPressed: () async {
-                    await DevicePolicyManager.lockTask();
+                    await DevicePolicyManager.lockNow();
                   },
                   icon: const Icon(Icons.lock),
                   label: const Text("Lock Screen"),

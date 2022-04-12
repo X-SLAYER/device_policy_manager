@@ -16,14 +16,18 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.PluginRegistry;
 
-public class DevicePolicyManagerPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler {
+public class DevicePolicyManagerPlugin
+        implements FlutterPlugin, ActivityAware, MethodCallHandler, PluginRegistry.ActivityResultListener {
+
+    private final String CHANNEL_TAG = "x-slayer/device_policy_manager";
 
     private MethodChannel channel;
     private Context appContext;
     private Activity mActivity;
-    private final String CHANNEL_TAG = "x-slayer/device_policy_manager";
-    final int RESULT_ENABLE = -11;
+    private Result pendingResult;
+    final int REQUEST_CODE_FOR_DEVICE_POLICY_MANAGER = 2999;
     DevicePolicyManager deviceManger;
     ComponentName compName;
 
@@ -38,32 +42,46 @@ public class DevicePolicyManagerPlugin implements FlutterPlugin, ActivityAware, 
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         compName = new ComponentName(appContext, DeviceAdmin.class);
         deviceManger = (DevicePolicyManager) appContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        pendingResult = result;
+
         if (call.method.equals("enablePermission")) {
-            try {
-                String message = call.argument("message").toString();
-                Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName);
-                intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, message);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                appContext.startActivity(intent);
-            } catch (Exception e) {
-                Log.d("TAG", e.getMessage());
-            }
+            String message = call.argument("message").toString();
+            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName);
+            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, message);
+            mActivity.startActivityForResult(intent, REQUEST_CODE_FOR_DEVICE_POLICY_MANAGER);
         } else if (call.method.equals("removeActiveAdmin")) {
             deviceManger.removeActiveAdmin(compName);
         } else if (call.method.equals("isPermissionGranted")) {
             result.success(deviceManger.isAdminActive(compName));
+        } else if (call.method.equals("isCameraDisabled")) {
+            result.success(deviceManger.getCameraDisabled(compName));
         } else if (call.method.equals("lockScreen")) {
             boolean active = deviceManger.isAdminActive(compName);
             if (active) {
                 deviceManger.lockNow();
-                result.success(true);
+                result.success(null);
+            } else {
+                result.error("ERROR", "You need to enable the Admin Device Features", null);
+            }
+        } else if (call.method.equals("enableCamera")) {
+            boolean active = deviceManger.isAdminActive(compName);
+            if (active) {
+                deviceManger.setCameraDisabled(compName, false);
+                result.success(null);
+            } else {
+                result.error("ERROR", "You need to enable the Admin Device Features", null);
+            }
+        } else if (call.method.equals("disableCamera")) {
+            boolean active = deviceManger.isAdminActive(compName);
+            if (active) {
+                deviceManger.setCameraDisabled(compName, true);
+                result.success(null);
             } else {
                 result.error("ERROR", "You need to enable the Admin Device Features", null);
             }
         }
     }
-
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
@@ -73,11 +91,7 @@ public class DevicePolicyManagerPlugin implements FlutterPlugin, ActivityAware, 
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding activityPluginBinding) {
         this.mActivity = activityPluginBinding.getActivity();
-        Log.i("TAG", "Attached to Activity");
-    }
-
-    @Override
-    public void onDetachedFromActivityForConfigChanges() {
+        activityPluginBinding.addActivityResultListener(this);
     }
 
     @Override
@@ -86,6 +100,26 @@ public class DevicePolicyManagerPlugin implements FlutterPlugin, ActivityAware, 
     }
 
     @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        this.mActivity = null;
+    }
+
+    @Override
     public void onDetachedFromActivity() {
+        this.mActivity = null;
+    }
+
+    @Override
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("A9WA", resultCode + " : RequestCode : " + requestCode);
+        if (requestCode == REQUEST_CODE_FOR_DEVICE_POLICY_MANAGER) {
+            if (resultCode == Activity.RESULT_OK) {
+                pendingResult.success(true);
+            } else {
+                pendingResult.success(false);
+            }
+            return true;
+        }
+        return false;
     }
 }
