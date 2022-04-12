@@ -5,8 +5,10 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import io.flutter.Log;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -64,22 +66,8 @@ public class DevicePolicyManagerPlugin
             } else {
                 result.error("ERROR", "You need to enable the Admin Device Features", null);
             }
-        } else if (call.method.equals("enableCamera")) {
-            boolean active = deviceManger.isAdminActive(compName);
-            if (active) {
-                deviceManger.setCameraDisabled(compName, false);
-                result.success(null);
-            } else {
-                result.error("ERROR", "You need to enable the Admin Device Features", null);
-            }
-        } else if (call.method.equals("disableCamera")) {
-            boolean active = deviceManger.isAdminActive(compName);
-            if (active) {
-                deviceManger.setCameraDisabled(compName, true);
-                result.success(null);
-            } else {
-                result.error("ERROR", "You need to enable the Admin Device Features", null);
-            }
+        } else {
+            result.notImplemented();
         }
     }
 

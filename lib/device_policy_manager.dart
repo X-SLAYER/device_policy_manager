@@ -30,7 +30,7 @@ class DevicePolicyManager {
   }
 
   /// request administrator permission
-  /// it will open the accessibility settings page and return `true` once the permission granted.
+  /// it will open the adminstartor permission page and return `true` once the permission granted.
   /// An optional message providing additional explanation for why the admin is being added.
   static Future<bool> requestPermession(
       [String message =
@@ -65,30 +65,6 @@ class DevicePolicyManager {
   static Future<void> lockNow() async {
     try {
       await _channel.invokeMethod('lockScreen');
-    } on PlatformException catch (error) {
-      log("$error");
-      rethrow;
-    }
-  }
-
-  /// Enable the camera
-  /// if its disabled the camera will be re-enabled again
-  /// https://developer.android.com/reference/android/app/admin/DevicePolicyManager#setCameraDisabled(android.content.ComponentName,%20boolean)
-  static Future<void> enableCamera() async {
-    try {
-      await _channel.invokeMethod('enableCamera');
-    } on PlatformException catch (error) {
-      log("$error");
-      rethrow;
-    }
-  }
-
-  /// Called by an application that is administering the device to disable all cameras on the device, for this user.
-  /// After setting this, no applications running as this user will be able to access any cameras on the device.
-  /// https://developer.android.com/reference/android/app/admin/DevicePolicyManager#setCameraDisabled(android.content.ComponentName,%20boolean)
-  static Future<void> disableCamera() async {
-    try {
-      await _channel.invokeMethod('disableCamera');
     } on PlatformException catch (error) {
       log("$error");
       rethrow;

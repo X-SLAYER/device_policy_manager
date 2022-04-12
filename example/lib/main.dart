@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
                     final res = await DevicePolicyManager.isPermissionGranted();
                     log("$res");
                   },
-                  child: const Text("Is permession enabled"),
+                  child: const Text("Check permission"),
                 ),
                 const SizedBox(height: 20.0),
                 TextButton.icon(
@@ -60,6 +60,14 @@ class _MyAppState extends State<MyApp> {
                   },
                   icon: const Icon(Icons.lock),
                   label: const Text("Lock Screen"),
+                ),
+                const SizedBox(height: 20.0),
+                TextButton(
+                  onPressed: () async {
+                    final res = await DevicePolicyManager.isCameraDisabled();
+                    log("Is camera disabled: $res");
+                  },
+                  child: const Text("Check Camera is disabled ?"),
                 ),
               ],
             ),
