@@ -17,7 +17,7 @@ Inside AndroidManifest add this to bind deviceAdmin receiver with your applicati
 
 ```
     ...
-  <receiver android:name="device.policy.manager.DeviceAdmin" android:permission="android.permission.BIND_DEVICE_ADMIN">
+  <receiver android:name="device.policy.manager.DeviceAdmin" android:permission="android.permission.BIND_DEVICE_ADMIN" android:exported="true">
       <meta-data android:name="android.app.device_admin" android:resource="@xml/policies" />
       <intent-filter android:exported="true">
           <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
