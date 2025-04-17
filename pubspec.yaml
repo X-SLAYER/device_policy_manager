@@ -1,10 +1,10 @@
 name: device_policy_manager
 description: Query Android device Administrator (DevicePolicyManager)
-version: 0.2.0
+version: 1.0.0
 homepage: https://github.com/X-SLAYER/device_policy_manager
 
 environment:
-  sdk: ">=2.16.1 <3.0.0"
+  sdk: '>=2.16.1 <4.0.0'
   flutter: ">=2.5.0"
 
 dependencies:
